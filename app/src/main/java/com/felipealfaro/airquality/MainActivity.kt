@@ -3,8 +3,13 @@ package com.felipealfaro.airquality
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.felipealfaro.airquality.databinding.ActivityMainBinding
+import java.io.IOException
 import java.text.SimpleDateFormat
 
 private fun dateToString(date: Long) : String {
@@ -12,11 +17,16 @@ private fun dateToString(date: Long) : String {
     return format.format(date)
 }
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
 
     private var selectedDate : String = ""
+    private var selectedCaptador : String = ""
+
+    private fun showMessage(date: String) {
+        Toast.makeText(this, "Selected date is $date", Toast.LENGTH_LONG).show()
+    }
 
     private fun setupCalendar() {
         selectedDate = dateToString(binding.calendarView.date)
@@ -31,19 +41,48 @@ class MainActivity : AppCompatActivity() {
             // Launch the activity used to show air quality data for
             // the given day selected from the calendar view
             Log.i("MainActivity", "selected date is $selectedDate")
+            if (selectedCaptador == "") {
+                showMessage("foo")
+            }
             val intent = Intent(this, DayDataActivity::class.java)
-            intent.putExtra("captador", binding.textView.text)
+            intent.putExtra("captador", selectedCaptador)
             intent.putExtra("fecha_lectura", selectedDate)
             startActivity(intent)
         }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {
+        selectedCaptador = parent.getItemAtPosition(pos).toString()
+        Log.i("MainActivity", "Selected captador $selectedCaptador")
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>) {
+        selectedCaptador = ""
+    }
+
+    private fun setupSpinner() {
+        val array : ArrayAdapter<String> = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_item
+        )
+        Log.i("MainActivity", "Loading data about captadores...")
+        val data = Captadores.getFromJsonAsset(applicationContext, "captadores_polen.json")
+        if (data == null) {
+            throw IOException()
+        }
+        data.data.forEach {
+            array.add(it.codigo)
+        }
+        array.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinner.adapter = array
+        binding.spinner.onItemSelectedListener = this
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        binding.textView.text = "AYTM"
+        setupSpinner()
         setupCalendar()
         setupButton()
     }

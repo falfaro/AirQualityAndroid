@@ -57,12 +57,14 @@ class DayDataActivity: AppCompatActivity() {
                 if (it.fecha_lectura == fecha_lectura && it.captador == captador) {
                     Log.i("DayDataActivity", it.toString())
                     values = ArrayList()
-                    values.add(
-                        BarEntry(
-                            index++,
-                            it.granos_de_polen_x_metro_cubico.toFloat()
+                    if (it.granos_de_polen_x_metro_cubico != "") {
+                        values.add(
+                            BarEntry(
+                                index++,
+                                it.granos_de_polen_x_metro_cubico.toFloat()
+                            )
                         )
-                    )
+                    }
                     dataSets.add(BarDataSet(values, it.tipo_polinico))
                 }
             }
