@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.felipealfaro.airquality.databinding.ActivityDayDataBinding
@@ -23,6 +24,10 @@ class DayDataActivity: AppCompatActivity() {
 
     private lateinit var binding: ActivityDayDataBinding
 
+    private val viewModel: PolenViewModel by viewModels {
+        PolenViewModelFactory(applicationContext)
+    }
+
     private var captador: String = ""
     private var fecha_lectura: String = ""
 
@@ -37,19 +42,12 @@ class DayDataActivity: AppCompatActivity() {
     }
 
     private fun setupChart(captador: String, fecha_lectura: String) {
-        val polenData = Polen.getPolenSamplesFromJsonAsset(
-            applicationContext,
-            "mediciones_polen.json"
-        )
-        if (polenData == null) {
-            throw IOException("Unable to retrieve samples JSON data")
-        }
-
+        val polenData = viewModel.data
         val dataSets: ArrayList<IBarDataSet> = ArrayList()
         var values: ArrayList<BarEntry>
         var index : Float = 0.toFloat()
 
-        polenData.data.forEach {
+        polenData.forEach {
             val current_fecha_lectura = "$fecha_lectura 00:00:00.0"
             if (it.fecha_lectura == current_fecha_lectura && it.captador == captador) {
                 values = ArrayList()
