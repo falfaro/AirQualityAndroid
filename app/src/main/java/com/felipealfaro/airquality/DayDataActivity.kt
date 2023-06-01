@@ -48,8 +48,8 @@ class DayDataActivity: AppCompatActivity() {
         var index : Float = 0.toFloat()
 
         polenData.data.forEach {
-            if (it.fecha_lectura == fecha_lectura && it.captador == captador) {
-                Log.i("DayDataActivity", it.toString())
+            val current_fecha_lectura = "$fecha_lectura 00:00:00.0"
+            if (it.fecha_lectura == current_fecha_lectura && it.captador == captador) {
                 values = ArrayList()
                 if (it.granos_de_polen_x_metro_cubico != "") {
                     values.add(
