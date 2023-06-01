@@ -21,6 +21,9 @@ class DayDataActivity: AppCompatActivity() {
 
     private lateinit var binding: ActivityDayDataBinding
 
+    private var captador: String = ""
+    private var fecha_lectura: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDayDataBinding.inflate(layoutInflater)
@@ -74,18 +77,28 @@ class DayDataActivity: AppCompatActivity() {
         binding.chart.invalidate()
     }
 
+    private fun setupButtons() {
+        binding.leftButton.setOnClickListener {
+            //
+        }
+
+        binding.rightButton.setOnClickListener {
+            //
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch {
-            val captador = intent.getStringExtra("captador").toString()
-            val fecha_lectura = intent.getStringExtra("fecha_lectura").toString()
+            captador = intent.getStringExtra("captador").toString()
+            fecha_lectura = intent.getStringExtra("fecha_lectura").toString()
             Log.i(LOG_TAG, "DayDataActivity: captador = $captador, fecha = $fecha_lectura")
 
             withContext(Dispatchers.Main) {
                 try {
                     binding.progressBar.visibility = View.VISIBLE
                     setupChart(captador, fecha_lectura)
-                    showMessage("Graph for $fecha_lectura")
+                    binding.selectedDate.text = fecha_lectura
                 } catch (e: IOException) {
                     showMessage(e.message.toString())
                 } finally {
