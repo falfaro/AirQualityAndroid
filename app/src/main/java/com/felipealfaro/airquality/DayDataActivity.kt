@@ -16,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.time.LocalDate
+import java.time.Period
 
 class DayDataActivity: AppCompatActivity() {
 
@@ -74,16 +76,27 @@ class DayDataActivity: AppCompatActivity() {
         binding.chart.legend.orientation = Legend.LegendOrientation.VERTICAL
         binding.chart.legend.setDrawInside(true)
         binding.chart.data = BarData(dataSets)
+
+        binding.selectedDate.text = fecha_lectura
         binding.chart.invalidate()
+    }
+
+    private fun scrollDay(period: Period) {
+        val date = LocalDate.parse(fecha_lectura)
+        fecha_lectura = (date + period).toString()
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                setupChart(captador, fecha_lectura)
+            }
+        }
     }
 
     private fun setupButtons() {
         binding.leftButton.setOnClickListener {
-            //
+            scrollDay(Period.of(0, 0, -1))
         }
-
         binding.rightButton.setOnClickListener {
-            //
+            scrollDay(Period.of(0, 0, 1))
         }
     }
 
@@ -94,11 +107,11 @@ class DayDataActivity: AppCompatActivity() {
             fecha_lectura = intent.getStringExtra("fecha_lectura").toString()
             Log.i(LOG_TAG, "DayDataActivity: captador = $captador, fecha = $fecha_lectura")
 
+            setupButtons()
             withContext(Dispatchers.Main) {
                 try {
                     binding.progressBar.visibility = View.VISIBLE
                     setupChart(captador, fecha_lectura)
-                    binding.selectedDate.text = fecha_lectura
                 } catch (e: IOException) {
                     showMessage(e.message.toString())
                 } finally {
