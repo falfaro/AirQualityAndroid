@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setupCalendar() {
-        binding.calendarView.setOnDateChangeListener { calendarView, year, month, day ->
+        binding.calendarView.setOnDateChangeListener { _, year, month, day ->
             // Note that months are indexed from 0. So, 0 means January, 1 means February, etc.
             selectedDate = "%04d-%02d-%02d".format(year, month + 1, day)
         }

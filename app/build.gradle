@@ -1,6 +1,49 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'de.undercouch.download' version '5.4.0'
+}
+
+// Task to download polen read samples data in JSON
+task downloadPolenSamples(
+        type: Download,
+        dependsOn: [
+                'mergeDebugAssets',
+                'mergeReleaseAssets',
+                'lintVitalAnalyzeRelease',
+                'lintVitalReportRelease'
+        ]
+) {
+    src 'https://datos.comunidad.madrid/catalogo/dataset/7bc9d9fd-16ec-4ce9-aa21-91ca0254d06e/resource/8285490e-3e65-4617-8240-c808e37c3933/download/mediciones_polen.json'
+    dest 'src/main/assets/mediciones_polen.json'
+    overwrite true
+}
+
+// Task to download sample stations data in JSON
+task downloadCaptadores(
+        type: Download,
+        dependsOn: [
+                'mergeDebugAssets',
+                'mergeReleaseAssets',
+                'lintVitalAnalyzeRelease',
+                'lintVitalReportRelease'
+        ]
+) {
+    src 'https://datos.comunidad.madrid/catalogo/dataset/0ac857b5-b747-4d4a-904f-7b6b4f275ead/resource/7a672aac-791c-48e8-afa6-e6b6d3a6b657/download/captadores_polen.json'
+    dest 'src/main/assets/captadores_polen.json'
+    overwrite true
+}
+
+// Add download tasks as a depdendency
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleDebug') {
+        task.dependsOn 'downloadPolenSamples'
+        task.dependsOn 'downloadCaptadores'
+    }
+    if (task.name == 'assemble') {
+        task.dependsOn 'downloadPolenSamples'
+        task.dependsOn 'downloadCaptadores'
+    }
 }
 
 android {
@@ -33,6 +76,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
